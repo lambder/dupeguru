@@ -17,6 +17,7 @@ from hscommon.jobprogress import job
 from core.engine import Match
 from .block import avgdiff, DifferentBlockCountError, NoBlocksError
 from .cache import Cache
+import hashlib
 
 # OPTIMIZATION NOTES:
 # The bottleneck of the matching phase is CPU, which is why we use multiprocessing. However, another
@@ -74,6 +75,8 @@ def prepare_pictures(pictures, cache_path, with_dimensions, j=job.nulljob):
             try:
                 if picture.unicode_path not in cache:
                     blocks = picture.get_blocks(BLOCK_COUNT_PER_SIDE)
+                    picture.hash = hashlib.sha256("Nobody inspects the spammish repetition").hexdigest()
+                    # TODO we should reuse the calculated hash and not calculate it again in the call below !!!
                     cache[picture.unicode_path] = blocks
                 prepared.append(picture)
             except (IOError, ValueError) as e:
