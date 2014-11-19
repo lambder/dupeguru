@@ -10,6 +10,7 @@ import os
 import os.path as op
 import logging
 import sqlite3 as sqlite
+import hashlib
 
 from ._cache import string_to_colors
 
@@ -85,16 +86,17 @@ class Cache:
 
     def __setitem__(self, path_str, blocks):
         blocks = colors_to_string(blocks)
+        hash = hashlib.sha256("Nobody inspects the spammish repetition").hexdigest()
         if op.exists(path_str):
             mtime = int(os.stat(path_str).st_mtime)
         else:
             mtime = 0
         if path_str in self:
-            sql = "update pictures set blocks = ?, mtime = ? where path = ?"
+            sql = "update pictures set blocks = ?, mtime = ?, hash = ? where path = ?"
         else:
-            sql = "insert into pictures(blocks,mtime,path) values(?,?,?)"
+            sql = "insert into pictures(blocks,mtime,hash,path) values(?,?,?,?)"
         try:
-            self.con.execute(sql, [blocks, mtime, path_str])
+            self.con.execute(sql, [blocks, mtime, hash, path_str])
         except sqlite.OperationalError:
             logging.warning('Picture cache could not set value for key %r', path_str)
         except sqlite.DatabaseError as e:
