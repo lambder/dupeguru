@@ -62,6 +62,16 @@ class Cache:
             return result
         else:
             raise KeyError(key)
+            
+    def __getitem_by_hash__(self, hash):
+        sql = "select blocks from pictures where hash = ?"
+        # we should really fetch all not one, and compare them all
+        result = self.con.execute(sql, [key]).fetchone()
+        if result:
+            result = string_to_colors(result[0])
+            return result
+        else:
+            raise KeyError(key)            
 
     def __iter__(self):
         sql = "select path from pictures"
