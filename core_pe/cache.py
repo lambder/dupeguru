@@ -95,8 +95,10 @@ class Cache:
             logging.debug("Creating picture cache tables.")
             self.con.execute("drop table if exists pictures")
             self.con.execute("drop index if exists idx_path")
-            self.con.execute("create table pictures(path TEXT, mtime INTEGER, blocks TEXT)")
+            self.con.execute("drop index if exists idx_hash")
+            self.con.execute("create table pictures(path TEXT, hash TEXT, mtime INTEGER, blocks TEXT)")
             self.con.execute("create index idx_path on pictures (path)")
+            self.con.execute("create index idx_hash on pictures (hash)")
 
         self.con = sqlite.connect(self.dbname, isolation_level=None)
         try:
